@@ -19,6 +19,7 @@ from mne.utils import get_config, set_config, _dt_to_stamp, _record_warnings
 from mne.viz.utils import _fake_click
 from mne.viz import plot_raw, plot_sensors
 
+from PyQt5.QtTest import QTest
 
 def _annotation_helper(raw, browse_backend, events=False):
     """Test interactive annotations."""
@@ -860,3 +861,98 @@ def test_clock_xticks(raw, dur, n_dec, browser_backend):
     assert tick_texts[0].startswith('19:01:53')
     if len(tick_texts[0].split('.')) > 1:
         assert len(tick_texts[0].split('.')[1]) == n_dec
+
+@pytest.mark.pgtest
+def test_pg_settings_dialog(raw_orig, pg_backend):
+    """Test Settings Dialog toggle on/off for pyqtgraph-backend."""
+    fig = raw_orig.plot()
+    fig.test_mode = True
+    QTest.qWaitForWindowExposed(fig)
+    QTest.qWait(50)
+    fig._fake_click_on_toolbar_action('Settings', wait_after=500)
+    assert pg_backend._get_n_figs() == 2
+    fig._fake_click_on_toolbar_action('Settings', wait_after=500)
+    assert pg_backend._get_n_figs() == 1
+    fig._fake_click_on_toolbar_action('Settings', wait_after=500)
+    assert pg_backend._get_n_figs() == 2
+    fig._fake_click_on_toolbar_action('Settings', wait_after=500)
+    assert pg_backend._get_n_figs() == 1
+
+@pytest.mark.pgtest
+def test_pg_help_dialog(raw_orig, pg_backend):
+    """Test Settings Dialog toggle on/off for pyqtgraph-backend."""
+    fig = raw_orig.plot()
+    fig.test_mode = True
+    QTest.qWaitForWindowExposed(fig)
+    QTest.qWait(50)
+    # fig.mne.toolbar
+    fig._fake_click_on_toolbar_action('Help', wait_after=500)
+    assert pg_backend._get_n_figs() == 2
+    fig._fake_click_on_toolbar_action('Help', wait_after=500)
+    assert pg_backend._get_n_figs() == 1
+    fig._fake_click_on_toolbar_action('Help', wait_after=500)
+    assert pg_backend._get_n_figs() == 2
+    fig._fake_click_on_toolbar_action('Help', wait_after=500)
+    assert pg_backend._get_n_figs() == 1
+
+@pytest.mark.pgtest
+def test_pg_toolbar_actions(raw_orig, pg_backend):
+    """Test toolbar all actions combined."""
+    fig = raw_orig.plot()
+    fig.test_mode = True
+    QTest.qWaitForWindowExposed(fig)
+    QTest.qWait(50)
+    assert pg_backend._get_n_figs() == 1
+    fig._fake_click_on_toolbar_action('- Time', wait_after=100)
+    fig._fake_click_on_toolbar_action('- Time', wait_after=100)
+    fig._fake_click_on_toolbar_action('- Time', wait_after=100)
+    fig._fake_click_on_toolbar_action('+ Time', wait_after=100)
+    fig._fake_click_on_toolbar_action('+ Time', wait_after=100)
+    fig._fake_click_on_toolbar_action('+ Time', wait_after=100)
+    assert pg_backend._get_n_figs() == 1
+
+    fig._fake_click_on_toolbar_action('- Channels', wait_after=100)
+    fig._fake_click_on_toolbar_action('- Channels', wait_after=100)
+    fig._fake_click_on_toolbar_action('- Channels', wait_after=100)
+    fig._fake_click_on_toolbar_action('+ Channels', wait_after=100)
+    fig._fake_click_on_toolbar_action('+ Channels', wait_after=100)
+    fig._fake_click_on_toolbar_action('+ Channels', wait_after=100)
+    assert pg_backend._get_n_figs() == 1
+
+    fig._fake_click_on_toolbar_action('Zoom Out', wait_after=100)
+    fig._fake_click_on_toolbar_action('Zoom Out', wait_after=100)
+    fig._fake_click_on_toolbar_action('Zoom Out', wait_after=100)
+    fig._fake_click_on_toolbar_action('Zoom Out', wait_after=100)
+    fig._fake_click_on_toolbar_action('Zoom Out', wait_after=100)
+    fig._fake_click_on_toolbar_action('Zoom Out', wait_after=100)
+    fig._fake_click_on_toolbar_action('Zoom In', wait_after=100)
+    fig._fake_click_on_toolbar_action('Zoom In', wait_after=100)
+    fig._fake_click_on_toolbar_action('Zoom In', wait_after=100)
+    fig._fake_click_on_toolbar_action('Zoom In', wait_after=100)
+    fig._fake_click_on_toolbar_action('Zoom In', wait_after=100)
+    fig._fake_click_on_toolbar_action('Zoom In', wait_after=100)
+    assert pg_backend._get_n_figs() == 1
+
+    fig._fake_click_on_toolbar_action('Annotations', wait_after=100)
+    fig._fake_click_on_toolbar_action('Annotations', wait_after=100)
+    fig._fake_click_on_toolbar_action('Fullscreen', wait_after=500)
+    fig._fake_click_on_toolbar_action('Fullscreen', wait_after=200)
+    assert pg_backend._get_n_figs() == 1
+
+    #toolbar actions here create a separate QDialog window
+    fig._fake_click_on_toolbar_action('SSP', wait_after=400)
+    assert pg_backend._get_n_figs() == 2
+    fig._fake_click_on_toolbar_action('Settings', wait_after=400)
+    assert pg_backend._get_n_figs() == 3
+    fig._fake_click_on_toolbar_action('Settings', wait_after=400)
+    assert pg_backend._get_n_figs() == 2
+    fig._fake_click_on_toolbar_action('Help', wait_after=400)
+    assert pg_backend._get_n_figs() == 3
+    fig._fake_click_on_toolbar_action('Settings', wait_after=400)
+    assert pg_backend._get_n_figs() == 4
+    fig._fake_click_on_toolbar_action('SSP', wait_after=400)
+    assert pg_backend._get_n_figs() == 3
+    fig._fake_click_on_toolbar_action('Settings', wait_after=400)
+    assert pg_backend._get_n_figs() == 2
+    fig._fake_click_on_toolbar_action('Help', wait_after=400)
+    assert pg_backend._get_n_figs() == 1
