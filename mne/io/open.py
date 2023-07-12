@@ -353,5 +353,6 @@ def _show_tree(fid, tree, indent, level, read_limit, max_str, tag_id):
         level = -1  # removes extra indent
     # deal with children
     for branch in tree["children"]:
+        branch["block"] = FIFF.FIFF_BLOCK_START
         out += _show_tree(fid, branch, indent, level + 1, read_limit, max_str, tag_id)
     return out

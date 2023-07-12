@@ -2604,7 +2604,7 @@ def _write_raw(
     logger.info("Writing %s" % use_fname)
 
     picks = _picks_to_idx(info, picks, "all", ())
-    with start_and_end_file(use_fname) as fid:
+    with start_and_end_file(use_fname, info["file_id"]) as fid:
         cals = _start_writing_raw(
             fid, info, picks, data_type, reset_range, raw.annotations
         )
